@@ -213,6 +213,7 @@ class FlutterLogin extends StatefulWidget {
     this.title = 'LOGIN',
     this.logo,
     this.messages,
+    this.sendCodeDisable = false,
     this.theme,
     this.emailValidator,
     this.passwordValidator,
@@ -235,6 +236,8 @@ class FlutterLogin extends StatefulWidget {
 
   /// The large text above the login [Card], usually the app or company name
   final String title;
+
+  final bool sendCodeDisable;
 
   /// The path to the asset image that will be passed to the `Image.asset()`
   final String logo;
@@ -540,6 +543,7 @@ class _FlutterLoginState extends State<FlutterLogin>
     const cardInitialHeight = 300;
     final cardTopPosition = deviceSize.height / 2 - cardInitialHeight / 2;
     final headerHeight = cardTopPosition - headerMargin;
+    final sendCodeDisable = widget.sendCodeDisable;
     final emailValidator =
         widget.emailValidator ?? FlutterLogin.defaultEmailValidator;
     final passwordValidator =
@@ -583,6 +587,7 @@ class _FlutterLoginState extends State<FlutterLogin>
                         padding: EdgeInsets.only(top: cardTopPosition),
                         loadingController: _loadingController,
                         emailValidator: emailValidator,
+                        sendCodeDisable: sendCodeDisable,
                         passwordValidator: passwordValidator,
                         onSubmit: _reverseHeaderAnimation,
                         onSubmitCompleted: widget.onSubmitAnimationCompleted,

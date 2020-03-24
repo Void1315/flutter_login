@@ -1,3 +1,9 @@
+/*
+ * @Author: asahi 
+ * @Date: 2020-03-24 14:51:05 
+ * @Last Modified by: asahi
+ * @Last Modified time: 2020-03-24 15:14:02
+ */
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
@@ -6,9 +12,18 @@ import 'custom_route.dart';
 import 'dashboard_screen.dart';
 import 'users.dart';
 
-class LoginScreen extends StatelessWidget {
-  static const routeName = '/auth';
 
+class LoginScreen extends StatefulWidget{
+  static const routeName = '/auth';
+  LoginScreenState createState() => LoginScreenState();
+
+}
+
+class LoginScreenState extends State<LoginScreen> {
+  
+  bool sendCodeDisable = false;
+  String sendCodeText = 'Send Code';
+  
   Duration get loginTime => Duration(milliseconds: timeDilation.ceil() * 2250);
 
   Future<String> _loginUser(LoginData data) {
@@ -45,8 +60,16 @@ class LoginScreen extends StatelessWidget {
   }
 
   Future<String> _onSendCode(){
+    setState(() {
+      sendCodeDisable = true;
+      sendCodeText = 'wait min';
+    });
     return Future.delayed(loginTime).then((_) {
       print("Send code!!!!!!");
+      setState(() {
+      sendCodeDisable = false;
+      sendCodeText = 'Send Code';
+    });
       return null;
     });
   }
@@ -65,6 +88,10 @@ class LoginScreen extends StatelessWidget {
       logoTag: Constants.logoTag,
       titleTag: Constants.titleTag,
       onSendCode: _onSendCode,
+      sendCodeDisable:sendCodeDisable,
+      messages:  LoginMessages(
+        sendCodeButton: sendCodeText,
+      ),
       // messages: LoginMessages(
       //   usernameHint: 'Username',
       //   passwordHint: 'Pass',

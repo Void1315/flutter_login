@@ -2,7 +2,7 @@
  * @Author: asahi 
  * @Date: 2020-03-24 10:26:16 
  * @Last Modified by: asahi
- * @Last Modified time: 2020-03-24 10:54:51
+ * @Last Modified time: 2020-03-24 15:11:16
  */
 import 'dart:math';
 
@@ -32,6 +32,7 @@ class AuthCard extends StatefulWidget {
     this.padding = const EdgeInsets.all(0),
     this.loadingController,
     this.emailValidator,
+    this.sendCodeDisable,
     this.passwordValidator,
     this.onSubmit,
     this.onSubmitCompleted,
@@ -41,6 +42,7 @@ class AuthCard extends StatefulWidget {
   final AnimationController loadingController;
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> passwordValidator;
+  final bool sendCodeDisable;
   final Function onSubmit;
   final Function onSubmitCompleted;
 
@@ -295,6 +297,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                         ? _formLoadingController
                         : (_formLoadingController..value = 1.0),
                     emailValidator: widget.emailValidator,
+                    sendCodeDisable:widget.sendCodeDisable,
                     passwordValidator: widget.passwordValidator,
                     onSwitchRecoveryPassword: () => _switchRecovery(true),
                     onSubmitCompleted: () {
@@ -340,6 +343,7 @@ class _LoginCard extends StatefulWidget {
     @required this.emailValidator,
     @required this.passwordValidator,
     @required this.onSwitchRecoveryPassword,
+    this.sendCodeDisable,
     this.onSwitchAuth,
     this.onSubmitCompleted,
   }) : super(key: key);
@@ -350,7 +354,7 @@ class _LoginCard extends StatefulWidget {
   final Function onSwitchRecoveryPassword;
   final Function onSwitchAuth;
   final Function onSubmitCompleted;
-
+  final bool sendCodeDisable;
   @override
   _LoginCardState createState() => _LoginCardState();
 }
@@ -360,6 +364,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
+  final _verificationCodeFocusNode = FocusNode();
 
   TextEditingController _nameController;
   TextEditingController _passController;
@@ -560,10 +565,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           labelText: messages.verificationCodeHint,
           prefixIcon: Icon(FontAwesomeIcons.solidEnvelope),
           keyboardType: TextInputType.emailAddress,
+          focusNode: _verificationCodeFocusNode,
           textInputAction: TextInputAction.next,
-          onFieldSubmitted: (value) {
-            FocusScope.of(context).requestFocus(_passwordFocusNode);
-          },
           onSaved: (value) => auth.verificationCode = value,
         ),
         _buildSendCodeButton(theme, messages, auth),
@@ -606,7 +609,9 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       controller: _confirmPassController,
       textInputAction: TextInputAction.done,
       focusNode: _confirmPasswordFocusNode,
-      onFieldSubmitted: (value) => _submit(),
+      onFieldSubmitted: (value) {
+        FocusScope.of(context).requestFocus(_verificationCodeFocusNode);
+      },
       validator: auth.isSignup
           ? (value) {
               if (value != _passController.text) {
@@ -658,7 +663,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       ThemeData theme, LoginMessages messages, Auth auth) {
     return RaisedButton(
       textColor: theme.primaryColor,
-      onPressed: _sendCode,
+      onPressed: widget.sendCodeDisable?null:_sendCode,
       child: AnimatedText(
         text: messages.sendCodeButton,
         textRotation: AnimatedTextRotation.down,

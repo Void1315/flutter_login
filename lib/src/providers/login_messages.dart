@@ -15,6 +15,7 @@ class LoginMessages with ChangeNotifier {
     this.recoverPasswordDescription: defaultRecoverPasswordDescription,
     this.goBackButton: defaultGoBackButton,
     this.confirmPasswordError: defaultConfirmPasswordError,
+    this.verificationCodeError: defaultVerificationCodeError,
     this.recoverPasswordSuccess: defaultRecoverPasswordSuccess,
   });
 
@@ -32,6 +33,7 @@ class LoginMessages with ChangeNotifier {
       'We will send your plain-text password to this email account.';
   static const defaultGoBackButton = 'BACK';
   static const defaultConfirmPasswordError = 'Password do not match!';
+  static const defaultVerificationCodeError = 'Verification code must be filled';
   static const defaultRecoverPasswordSuccess = 'An email has been sent';
 
   /// Hint text of the user name [TextField]
@@ -74,6 +76,8 @@ class LoginMessages with ChangeNotifier {
   /// The error message to show when the confirm password not match with the
   /// original password
   final String confirmPasswordError;
+
+  final String verificationCodeError;
 
   /// The success message to show after submitting recover password
   final String recoverPasswordSuccess;
