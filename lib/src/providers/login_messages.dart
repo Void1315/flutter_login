@@ -5,10 +5,12 @@ class LoginMessages with ChangeNotifier {
     this.usernameHint: defaultUsernameHint,
     this.passwordHint: defaultPasswordHint,
     this.confirmPasswordHint: defaultConfirmPasswordHint,
+    this.verificationCodeHint: defaultVerificationCodeHint,
     this.forgotPasswordButton: defaultForgotPasswordButton,
     this.loginButton: defaultLoginButton,
     this.signupButton: defaultSignupButton,
     this.recoverPasswordButton: defaultRecoverPasswordButton,
+    this.sendCodeButton:defaultSendCodeButton,
     this.recoverPasswordIntro: defaultRecoverPasswordIntro,
     this.recoverPasswordDescription: defaultRecoverPasswordDescription,
     this.goBackButton: defaultGoBackButton,
@@ -19,10 +21,12 @@ class LoginMessages with ChangeNotifier {
   static const defaultUsernameHint = 'Email';
   static const defaultPasswordHint = 'Password';
   static const defaultConfirmPasswordHint = 'Confirm Password';
+  static const defaultVerificationCodeHint = 'Verification Code';
   static const defaultForgotPasswordButton = 'Forgot Password?';
   static const defaultLoginButton = 'LOGIN';
   static const defaultSignupButton = 'SIGNUP';
   static const defaultRecoverPasswordButton = 'RECOVER';
+  static const defaultSendCodeButton = 'Send Code';
   static const defaultRecoverPasswordIntro = 'Reset your password here';
   static const defaultRecoverPasswordDescription =
       'We will send your plain-text password to this email account.';
@@ -39,11 +43,17 @@ class LoginMessages with ChangeNotifier {
   /// Hint text of the confirm password [TextField]
   final String confirmPasswordHint;
 
+  /// Hint text of the verificationCode [TextField]
+  final String verificationCodeHint;
+
   /// Forgot password button's label
   final String forgotPasswordButton;
 
   /// Login button's label
   final String loginButton;
+
+  /// Send verificationCode Button text
+  final String sendCodeButton;
 
   /// Signup button's label
   final String signupButton;

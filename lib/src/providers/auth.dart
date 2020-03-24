@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/sing_up_data.dart';
 
 import '../models/login_data.dart';
 
@@ -7,24 +8,34 @@ enum AuthMode { Signup, Login }
 /// The result is an error message, callback successes if message is null
 typedef AuthCallback = Future<String> Function(LoginData);
 
+typedef SignUpDataCallback = Future<String> Function(SignUpData);
+
 /// The result is an error message, callback successes if message is null
 typedef RecoverCallback = Future<String> Function(String);
 
+typedef SendCodeCallback = Future<String> Function();
+
 class Auth with ChangeNotifier {
+
   Auth({
     this.onLogin,
     this.onSignup,
     this.onRecoverPassword,
+    this.onSendCode,
     String email = '',
     String password = '',
     String confirmPassword = '',
+    String verificationCode = '',
   })  : this._email = email,
         this._password = password,
-        this._confirmPassword = confirmPassword;
+        this._confirmPassword = confirmPassword,
+        this._verificationCode = verificationCode;
 
   final AuthCallback onLogin;
-  final AuthCallback onSignup;
+  final SignUpDataCallback onSignup;
   final RecoverCallback onRecoverPassword;
+  final SendCodeCallback onSendCode;
+
 
   AuthMode _mode = AuthMode.Login;
 
@@ -71,4 +82,12 @@ class Auth with ChangeNotifier {
     _confirmPassword = confirmPassword;
     notifyListeners();
   }
+
+  String _verificationCode = '';
+  get verificationCode => _verificationCode;
+  set verificationCode (String verificationCode){
+    _verificationCode = verificationCode;
+    notifyListeners();
+  }
+
 }

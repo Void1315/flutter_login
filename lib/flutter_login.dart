@@ -19,6 +19,7 @@ import 'src/widgets/auth_card.dart';
 import 'src/widgets/fade_in.dart';
 import 'src/widgets/hero_text.dart';
 import 'src/widgets/gradient_box.dart';
+export 'src/models/sing_up_data.dart';
 export 'src/models/login_data.dart';
 export 'src/providers/login_messages.dart';
 export 'src/providers/login_theme.dart';
@@ -208,6 +209,7 @@ class FlutterLogin extends StatefulWidget {
     @required this.onSignup,
     @required this.onLogin,
     @required this.onRecoverPassword,
+    @required this.onSendCode,
     this.title = 'LOGIN',
     this.logo,
     this.messages,
@@ -220,8 +222,10 @@ class FlutterLogin extends StatefulWidget {
     this.showDebugButtons = false,
   }) : super(key: key);
 
+  final SendCodeCallback onSendCode;
+
   /// Called when the user hit the submit button when in sign up mode
-  final AuthCallback onSignup;
+  final SignUpDataCallback onSignup;
 
   /// Called when the user hit the submit button when in login mode
   final AuthCallback onLogin;
@@ -551,6 +555,7 @@ class _FlutterLoginState extends State<FlutterLogin>
             onLogin: widget.onLogin,
             onSignup: widget.onSignup,
             onRecoverPassword: widget.onRecoverPassword,
+            onSendCode: widget.onSendCode,
           ),
         ),
       ],

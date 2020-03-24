@@ -1,6 +1,13 @@
+/*
+ * @Author: asahi 
+ * @Date: 2020-03-24 10:26:16 
+ * @Last Modified by: asahi
+ * @Last Modified time: 2020-03-24 10:54:51
+ */
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../models/sing_up_data.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:transformer_page_view/transformer_page_view.dart';
@@ -99,7 +106,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     // replace 0 with minPositive to pass the test
     // https://github.com/flutter/flutter/issues/42527#issuecomment-575131275
     _cardOverlayHeightFactorAnimation =
-        Tween<double>(begin: double.minPositive, end: 1.0).animate(CurvedAnimation(
+        Tween<double>(begin: double.minPositive, end: 1.0)
+            .animate(CurvedAnimation(
       parent: _routeTransitionController,
       curve: Interval(.27272727, .5 /* ~250ms */, curve: Curves.linear),
     ));
@@ -356,6 +364,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
   TextEditingController _nameController;
   TextEditingController _passController;
   TextEditingController _confirmPassController;
+  TextEditingController _verificationCodeController;
 
   var _isLoading = false;
   var _isSubmitting = false;
@@ -381,6 +390,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     final auth = Provider.of<Auth>(context, listen: false);
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
+    _verificationCodeController =
+        TextEditingController(text: auth.verificationCode);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
 
     _loadingController = widget.loadingController ??
@@ -449,6 +460,25 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     }
   }
 
+  Future<bool> _sendCode() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (!_formKey.currentState.validate()) {
+      return false;
+    }
+
+    // _formKey.currentState.save();
+    final auth = Provider.of<Auth>(context, listen: false);
+    String error;
+
+    error = await auth.onSendCode();
+    if (!DartHelper.isNullOrEmpty(error)) {
+      showErrorToast(context, error);
+      return false;
+    }
+    return true;
+  }
+
   Future<bool> _submit() async {
     // a hack to force unfocus the soft keyboard. If not, after change-route
     // animation completes, it will trigger rebuilding this widget and show all
@@ -471,9 +501,10 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
         password: auth.password,
       ));
     } else {
-      error = await auth.onSignup(LoginData(
+      error = await auth.onSignup(SignUpData(
         name: auth.email,
         password: auth.password,
+        verificationCode: auth.verificationCode,
       ));
     }
 
@@ -517,6 +548,29 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildVerificationCodeField(
+      double width, LoginMessages messages, Auth auth, ThemeData theme) {
+    return Row(
+      children: <Widget>[
+        AnimatedTextFormField(
+          controller: _verificationCodeController,
+          width: width - 120,
+          loadingController: _loadingController,
+          interval: _nameTextFieldLoadingAnimationInterval,
+          labelText: messages.verificationCodeHint,
+          prefixIcon: Icon(FontAwesomeIcons.solidEnvelope),
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (value) {
+            FocusScope.of(context).requestFocus(_passwordFocusNode);
+          },
+          onSaved: (value) => auth.verificationCode = value,
+        ),
+        _buildSendCodeButton(theme, messages, auth),
+      ],
+    );
+  }
+
   Widget _buildPasswordField(double width, LoginMessages messages, Auth auth) {
     return AnimatedPasswordTextFormField(
       animatedWidth: width,
@@ -540,7 +594,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildConfirmPasswordField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildConfirmPasswordField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedPasswordTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
@@ -576,16 +631,19 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           style: theme.textTheme.body1,
           textAlign: TextAlign.left,
         ),
-        onPressed: buttonEnabled ? () {
-          // save state to populate email field on recovery card
-          _formKey.currentState.save();
-          widget.onSwitchRecoveryPassword();
-        } : null,
+        onPressed: buttonEnabled
+            ? () {
+                // save state to populate email field on recovery card
+                _formKey.currentState.save();
+                widget.onSwitchRecoveryPassword();
+              }
+            : null,
       ),
     );
   }
 
-  Widget _buildSubmitButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSubmitButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return ScaleTransition(
       scale: _buttonScaleAnimation,
       child: AnimatedButton(
@@ -596,7 +654,20 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSwitchAuthButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSendCodeButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
+    return RaisedButton(
+      textColor: theme.primaryColor,
+      onPressed: _sendCode,
+      child: AnimatedText(
+        text: messages.sendCodeButton,
+        textRotation: AnimatedTextRotation.down,
+      ),
+    );
+  }
+
+  Widget _buildSwitchAuthButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return FadeIn(
       controller: _loadingController,
       offset: .5,
@@ -662,6 +733,23 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             ),
             onExpandCompleted: () => _postSwitchAuthController.forward(),
             child: _buildConfirmPasswordField(textFieldWidth, messages, auth),
+          ),
+          ExpandableContainer(
+            backgroundColor: theme.accentColor,
+            controller: _switchAuthController,
+            initialState: isLogin
+                ? ExpandableContainerState.shrunk
+                : ExpandableContainerState.expanded,
+            alignment: Alignment.topLeft,
+            color: theme.cardTheme.color,
+            width: cardWidth,
+            padding: EdgeInsets.symmetric(
+              horizontal: cardPadding,
+              vertical: 10,
+            ),
+            onExpandCompleted: () => _postSwitchAuthController.forward(),
+            child: _buildVerificationCodeField(
+                textFieldWidth, messages, auth, theme),
           ),
           Container(
             padding: Paddings.fromRBL(cardPadding),
@@ -755,7 +843,8 @@ class _RecoverCardState extends State<_RecoverCard>
     }
   }
 
-  Widget _buildRecoverNameField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildRecoverNameField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       controller: _nameController,
       width: width,
@@ -780,10 +869,12 @@ class _RecoverCardState extends State<_RecoverCard>
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
     return FlatButton(
       child: Text(messages.goBackButton),
-      onPressed: !_isSubmitting ? () {
-        _formRecoverKey.currentState.save();
-        widget.onSwitchLogin();
-      } : null,
+      onPressed: !_isSubmitting
+          ? () {
+              _formRecoverKey.currentState.save();
+              widget.onSwitchLogin();
+            }
+          : null,
       padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       textColor: theme.primaryColor,

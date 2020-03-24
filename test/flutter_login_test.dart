@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../lib/flutter_login.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'utils.dart';
-import '../lib/flutter_login.dart';
 import '../lib/src/constants.dart';
 import '../lib/src/widgets/animated_text.dart';
 

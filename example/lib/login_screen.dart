@@ -23,6 +23,18 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
+  Future<String> _signUpUser(SignUpData data) {
+    return Future.delayed(loginTime).then((_) {
+      if (!mockUsers.containsKey(data.name)) {
+        return 'Username not exists';
+      }
+      if (mockUsers[data.name] != data.password) {
+        return 'Password does not match';
+      }
+      return null;
+    });
+  }
+
   Future<String> _recoverPassword(String name) {
     return Future.delayed(loginTime).then((_) {
       if (!mockUsers.containsKey(name)) {
@@ -31,6 +43,14 @@ class LoginScreen extends StatelessWidget {
       return null;
     });
   }
+
+  Future<String> _onSendCode(){
+    return Future.delayed(loginTime).then((_) {
+      print("Send code!!!!!!");
+      return null;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +64,7 @@ class LoginScreen extends StatelessWidget {
       logo: 'assets/images/ecorp.png',
       logoTag: Constants.logoTag,
       titleTag: Constants.titleTag,
+      onSendCode: _onSendCode,
       // messages: LoginMessages(
       //   usernameHint: 'Username',
       //   passwordHint: 'Pass',
@@ -152,11 +173,12 @@ class LoginScreen extends StatelessWidget {
         print('Password: ${loginData.password}');
         return _loginUser(loginData);
       },
-      onSignup: (loginData) {
+      onSignup: (signUpData) {
         print('Signup info');
-        print('Name: ${loginData.name}');
-        print('Password: ${loginData.password}');
-        return _loginUser(loginData);
+        print('Name: ${signUpData.name}');
+        print('Password: ${signUpData.password}');
+        print('code: ${signUpData}');
+        return _signUpUser(signUpData);
       },
       onSubmitAnimationCompleted: () {
         Navigator.of(context).pushReplacement(FadePageRoute(
