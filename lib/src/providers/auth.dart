@@ -13,7 +13,7 @@ typedef SignUpDataCallback = Future<String> Function(SignUpData);
 /// The result is an error message, callback successes if message is null
 typedef RecoverCallback = Future<String> Function(String);
 
-typedef SendCodeCallback = Future<String> Function();
+typedef SendCodeCallback = Future<String> Function(LoginData);
 
 class Auth with ChangeNotifier {
 

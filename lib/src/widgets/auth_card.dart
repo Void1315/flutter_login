@@ -2,7 +2,7 @@
  * @Author: asahi 
  * @Date: 2020-03-24 10:26:16 
  * @Last Modified by: asahi
- * @Last Modified time: 2020-03-24 15:11:16
+ * @Last Modified time: 2020-03-24 16:27:52
  */
 import 'dart:math';
 
@@ -476,7 +476,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     final auth = Provider.of<Auth>(context, listen: false);
     String error;
 
-    error = await auth.onSendCode();
+    error = await auth.onSendCode(LoginData(name: auth.email,password: auth.password));
     if (!DartHelper.isNullOrEmpty(error)) {
       showErrorToast(context, error);
       return false;

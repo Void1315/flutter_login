@@ -52,7 +52,7 @@ Widget defaultFlutterLogin() {
       onSignup: (data) => null,
       onLogin: (data) => null,
       onRecoverPassword: (data) => null,
-      onSendCode: ()=>null,
+      onSendCode: (data)=>null,
     ),
   );
 }
